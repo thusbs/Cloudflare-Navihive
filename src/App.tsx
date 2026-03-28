@@ -1131,10 +1131,11 @@ function App() {
       return;
     }
 
-    const isAlreadyFavorite = favoriteSiteIds.includes(site.id);
+    const siteId = site.id;
+    const isAlreadyFavorite = favoriteSiteIds.includes(siteId);
 
     setFavoriteSiteIds((currentIds) =>
-      isAlreadyFavorite ? currentIds.filter((id) => id !== site.id) : [site.id, ...currentIds]
+      isAlreadyFavorite ? currentIds.filter((id) => id !== siteId) : [siteId, ...currentIds]
     );
 
     setSnackbarMessage(isAlreadyFavorite ? `已取消收藏「${site.name}」` : `已收藏「${site.name}」`);
@@ -1147,8 +1148,10 @@ function App() {
       return;
     }
 
+    const siteId = site.id;
+
     setRecentSiteIds((currentIds) =>
-      [site.id as number, ...currentIds.filter((id) => id !== site.id)].slice(0, MAX_RECENT_SITES)
+      [siteId, ...currentIds.filter((id) => id !== siteId)].slice(0, MAX_RECENT_SITES)
     );
   };
 
