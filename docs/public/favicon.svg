@@ -1,0 +1,24 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#61DAFB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2D6CDF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 六边形背景 -->
+  <path d="M16 4L26 10V22L16 28L6 22V10L16 4Z"
+        fill="url(#iconGradient)"/>
+
+  <!-- 白色内层 -->
+  <path d="M16 9L21 12V20L16 23L11 20V12L16 9Z"
+        fill="white"/>
+
+  <!-- 蓝色圆心 + N 字母 -->
+  <circle cx="16" cy="16" r="4" fill="#2D6CDF"/>
+  <path d="M14 14 L14 18 L16 16.5 L18 18 L18 14"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        fill="none"/>
+</svg>

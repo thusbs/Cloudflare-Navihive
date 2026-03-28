@@ -1,0 +1,196 @@
+.duration-0 {
+  --tw-duration: 0ms;
+  transition-duration: 0ms;
+  transition-delay: 0ms;
+}
+
+.navihive-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--navihive-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--navihive-grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.navihive-shell__orb {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  filter: blur(24px);
+  z-index: 0;
+  opacity: 0.85;
+  animation: navihive-float 16s ease-in-out infinite;
+}
+
+.navihive-shell__orb--one {
+  width: 340px;
+  height: 340px;
+  top: -80px;
+  left: -110px;
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.28), transparent 70%);
+}
+
+.navihive-shell__orb--two {
+  width: 380px;
+  height: 380px;
+  top: 140px;
+  right: -140px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.24), transparent 70%);
+  animation-delay: -5s;
+}
+
+.dark .navihive-shell__orb--one {
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.2), transparent 70%);
+}
+
+.dark .navihive-shell__orb--two {
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.18), transparent 70%);
+}
+
+.navihive-hero-surface__mesh {
+  position: absolute;
+  inset: auto -5% -45% auto;
+  width: 380px;
+  height: 380px;
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, rgba(15, 118, 110, 0.2), transparent 58%),
+    radial-gradient(circle at 30% 30%, rgba(249, 115, 22, 0.18), transparent 42%);
+  filter: blur(12px);
+  opacity: 0.9;
+}
+
+.dark .navihive-hero-surface__mesh {
+  background:
+    radial-gradient(circle at center, rgba(94, 234, 212, 0.18), transparent 58%),
+    radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.16), transparent 42%);
+}
+
+@keyframes navihive-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, 16px, 0) scale(1.06);
+  }
+}
+
+/* 优化拖拽体验 */
+[data-dnd-draggable-context='true'] {
+  transition: none !important;
+}
+
+[data-dragging='true'] {
+  transition: none !important;
+  transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) !important;
+  z-index: 9999 !important;
+  -webkit-transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) !important;
+  -moz-transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) !important;
+  -ms-transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) !important;
+  -o-transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) !important;
+}
+
+[data-dnd-draggable] {
+  transform-origin: 0 0;
+  contain: layout;
+}
+
+/* 背景图片相关样式 */
+.with-background-image {
+  position: relative;
+}
+
+.background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* 增加卡片在有背景图片时的可读性 */
+.dark .MuiPaper-root {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .MuiPaper-root {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* 移动端适配样式 */
+@media (max-width: 600px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 改善触摸体验的样式 */
+  button,
+  [role='button'],
+  a {
+    padding: 6px 12px !important;
+    min-height: 36px;
+  }
+
+  /* 按钮图标大小调整 */
+  .MuiButton-startIcon > *:nth-of-type(1),
+  .MuiButton-endIcon > *:nth-of-type(1) {
+    font-size: 18px !important;
+  }
+
+  /* 图标按钮样式调整 */
+  .MuiIconButton-root {
+    padding: 6px !important;
+  }
+
+  /* 移动端更清晰的分割线 */
+  .MuiDivider-root {
+    margin: 8px 0 !important;
+  }
+
+  /* 确保移动端对话框不会过于接近屏幕边缘 */
+  .MuiDialog-paper {
+    margin: 12px !important;
+  }
+
+  /* 移动端菜单更宽 */
+  .MuiMenu-paper {
+    min-width: 200px !important;
+  }
+
+  /* 移动端表单元素更容易点击 */
+  .MuiInputBase-input {
+    padding: 10px 12px !important;
+  }
+}
+
+/* 暗黑模式增强 */
+.dark .MuiPaper-root {
+  background-color: #1e1e1e;
+}
+
+.dark .MuiCard-root {
+  background-color: #262626;
+}
+
+/* 增强可访问性 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

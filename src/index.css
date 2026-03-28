@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --navihive-page-bg: #edf7f5;
+  --navihive-accent-cool: rgba(15, 118, 110, 0.12);
+  --navihive-accent-warm: rgba(249, 115, 22, 0.18);
+  --navihive-grid-line: rgba(15, 118, 110, 0.08);
+  --navihive-selection-bg: rgba(15, 118, 110, 0.22);
+}
+
+.dark {
+  --navihive-page-bg: #07131d;
+  --navihive-accent-cool: rgba(94, 234, 212, 0.15);
+  --navihive-accent-warm: rgba(251, 146, 60, 0.16);
+  --navihive-grid-line: rgba(148, 163, 184, 0.08);
+  --navihive-selection-bg: rgba(94, 234, 212, 0.24);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 10%, var(--navihive-accent-cool), transparent 28%),
+    radial-gradient(circle at 88% 12%, var(--navihive-accent-warm), transparent 24%),
+    linear-gradient(180deg, var(--navihive-page-bg), var(--navihive-page-bg));
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--navihive-selection-bg);
+}

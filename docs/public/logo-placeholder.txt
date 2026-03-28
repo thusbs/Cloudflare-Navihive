@@ -1,0 +1,11 @@
+请在此目录放置以下文件：
+
+1. logo.svg - 站点 Logo（SVG 格式，建议尺寸：200x200）
+2. favicon.ico - 网站图标（ICO 格式，建议尺寸：32x32）
+
+如果暂时没有 logo，文档站点仍然可以正常运行，只是会显示默认图标。
+
+你可以：
+- 使用项目现有的 logo（如果有）
+- 使用在线工具生成简单的 logo：https://favicon.io/
+- 或使用 NaviHive 的首字母 "NH" 作为临时 logo
