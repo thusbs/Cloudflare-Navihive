@@ -1,4 +1,40 @@
+import { compareSync } from 'bcrypt-edge';
+
 import { Group, Site, LoginResponse, ExportData, ImportResult, GroupWithSites } from './http';
+
+const BCRYPT_HASH_PATTERN = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
+
+type PasswordMode = 'missing' | 'plaintext' | 'bcrypt' | 'invalid-bcrypt';
+
+function getPasswordMode(passwordConfig: string): PasswordMode {
+  if (!passwordConfig) {
+    return 'missing';
+  }
+
+  if (BCRYPT_HASH_PATTERN.test(passwordConfig)) {
+    return 'bcrypt';
+  }
+
+  if (passwordConfig.startsWith('$2')) {
+    return 'invalid-bcrypt';
+  }
+
+  return 'plaintext';
+}
+
+function verifyConfiguredPassword(password: string, passwordConfig: string): boolean {
+  const passwordMode = getPasswordMode(passwordConfig);
+
+  if (passwordMode === 'bcrypt') {
+    return compareSync(password, passwordConfig);
+  }
+
+  if (passwordMode === 'plaintext') {
+    return password === passwordConfig;
+  }
+
+  return false;
+}
 
 // 模拟数据
 const mockGroups: Group[] = [
@@ -107,18 +143,34 @@ const mockConfigs: Record<string, string> = {
 export class MockNavigationClient {
   private token: string | null = null;
   public isAuthenticated: boolean = false; // 公开认证状态
+  private readonly username: string;
+  private readonly passwordConfig: string;
 
   constructor() {
+    this.username = import.meta.env.VITE_MOCK_AUTH_USERNAME?.trim() || '';
+    this.passwordConfig = import.meta.env.VITE_MOCK_AUTH_PASSWORD?.trim() || '';
+
     // 从本地存储加载令牌
     if (typeof localStorage !== 'undefined') {
       this.token = localStorage.getItem('auth_token');
-      this.isAuthenticated = !!this.token;
     }
+
+    if (!this.hasUsableAuthConfig()) {
+      this.clearToken();
+      return;
+    }
+
+    this.isAuthenticated = !!this.token;
+  }
+
+  private hasUsableAuthConfig(): boolean {
+    const passwordMode = getPasswordMode(this.passwordConfig);
+    return !!this.username && (passwordMode === 'plaintext' || passwordMode === 'bcrypt');
   }
 
   // 检查是否已登录
   isLoggedIn(): boolean {
-    return !!this.token;
+    return this.hasUsableAuthConfig() && !!this.token;
   }
 
   // 设置认证令牌
@@ -146,15 +198,44 @@ export class MockNavigationClient {
     rememberMe: boolean = false
   ): Promise<LoginResponse> {
     await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log(username, password, rememberMe ? '记住登录' : '标准登录');
-    // 模拟登录验证逻辑 - 在Mock环境中任何账号密码都能登录
+    const passwordMode = getPasswordMode(this.passwordConfig);
+
+    if (!this.username || passwordMode === 'missing') {
+      return {
+        success: false,
+        message:
+          '本地 Mock 登录未配置。请在 .env 中设置 VITE_MOCK_AUTH_USERNAME / VITE_MOCK_AUTH_PASSWORD，或在 wrangler.jsonc 的 vars 中设置 AUTH_USERNAME / AUTH_PASSWORD。',
+      };
+    }
+
+    if (passwordMode === 'invalid-bcrypt') {
+      return {
+        success: false,
+        message: '本地 Mock AUTH_PASSWORD 看起来像 bcrypt 哈希，但格式无效。',
+      };
+    }
+
+    if (username !== this.username) {
+      return {
+        success: false,
+        message: '用户名或密码错误',
+      };
+    }
+
+    if (!verifyConfiguredPassword(password, this.passwordConfig)) {
+      return {
+        success: false,
+        message: '用户名或密码错误',
+      };
+    }
+
     const token = btoa(`${username}:${new Date().getTime()}:${rememberMe}`);
     this.setToken(token);
 
     return {
       success: true,
       token: token,
-      message: `登录成功(模拟环境)${rememberMe ? '，已记住登录状态' : ''}`,
+      message: `登录成功(模拟环境，凭证已校验)${rememberMe ? '，已记住登录状态' : ''}`,
     };
   }
 
@@ -166,6 +247,10 @@ export class MockNavigationClient {
   // 检查身份验证状态
   async checkAuthStatus(): Promise<boolean> {
     await new Promise((resolve) => setTimeout(resolve, 300));
+
+    if (!this.hasUsableAuthConfig()) {
+      return false;
+    }
 
     // 模拟真实环境中的行为：如果有token则认为已认证
     if (this.token) {

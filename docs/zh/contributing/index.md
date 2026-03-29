@@ -526,6 +526,18 @@ git push origin --delete feature/your-feature-name
 // 模拟数据存储在内存中，重启后重置
 ```
 
+Mock 登录现在会校验账号密码，不再接受任意输入：
+
+```bash
+# 方式 1：在 .env 中显式配置本地 Mock 登录凭证
+echo "VITE_MOCK_AUTH_USERNAME=admin" >> .env
+echo "VITE_MOCK_AUTH_PASSWORD=ChangeMe123!" >> .env
+```
+
+如果 `.env` 未提供 `VITE_MOCK_AUTH_USERNAME` / `VITE_MOCK_AUTH_PASSWORD`，
+开发服务器会回退读取本地 `wrangler.jsonc` 中的 `vars.AUTH_USERNAME` / `vars.AUTH_PASSWORD`。
+这样本地 Mock 登录会尽量与部署配置保持一致，避免出现“本地能登、线上不能登”的错觉。
+
 **优势**：
 - 快速启动，无需配置 D1
 - 独立开发，不依赖后端
