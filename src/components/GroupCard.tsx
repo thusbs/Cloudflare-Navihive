@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Site, Group } from '../API/http';
 import SiteCard from './SiteCard';
+import ListView from './ListView';
 import { GroupWithSites } from '../types';
 import EditGroupDialog from './EditGroupDialog';
 import {
@@ -45,6 +46,7 @@ interface GroupCardProps {
   sortMode: 'None' | 'GroupSort' | 'SiteSort';
   currentSortingGroupId: number | null;
   viewMode?: 'readonly' | 'edit'; // 访问模式
+  bookmarkViewMode?: 'card' | 'list'; // 书签视图模式
   onUpdate: (updatedSite: Site) => void;
   onDelete: (siteId: number) => void;
   onSaveSiteOrder: (groupId: number, sites: Site[]) => void;
@@ -64,6 +66,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
   sortMode,
   currentSortingGroupId,
   viewMode = 'edit', // 默认为编辑模式
+  bookmarkViewMode = 'card', // 默认为卡片视图
   onUpdate,
   onDelete,
   onSaveSiteOrder,
@@ -177,6 +180,23 @@ const GroupCard: React.FC<GroupCardProps> = ({
       return null;
     }
 
+    // 列表视图模式
+    if (bookmarkViewMode === 'list' && !isCurrentEditingGroup) {
+      return (
+        <ListView
+          sites={sitesToRender}
+          onSiteClick={onVisitSite}
+          onSettingsClick={(site) => {
+            // 这里需要打开设置对话框，暂时使用 console.log
+            console.log('Edit site:', site);
+          }}
+          viewMode={viewMode}
+          favoriteSiteIds={favoriteSiteIds}
+          onToggleFavorite={onToggleFavorite}
+        />
+      );
+    }
+
     // 如果是编辑模式，使用DndContext包装
     if (isCurrentEditingGroup) {
       return (
@@ -233,7 +253,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
       );
     }
 
-    // 普通模式下的渲染
+    // 卡片视图模式（普通模式）
     return (
       <Box
         sx={{

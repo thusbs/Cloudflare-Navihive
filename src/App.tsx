@@ -1646,6 +1646,7 @@ function App() {
                         sortMode={sortMode === SortMode.None ? 'None' : 'SiteSort'}
                         currentSortingGroupId={currentSortingGroupId}
                         viewMode={viewMode}
+                        bookmarkViewMode={bookmarkViewMode}
                         onUpdate={handleSiteUpdate}
                         onDelete={handleSiteDelete}
                         onSaveSiteOrder={handleSaveSiteOrder}
