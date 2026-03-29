@@ -199,9 +199,22 @@ pnpm hash-password YourStrongPassword123
 ### 步骤 5：初始化数据库
 
 ```bash
-# 执行初始化 SQL
-wrangler d1 execute navigation-db --file=schema.sql
+# 执行基础表初始化
+npx wrangler d1 execute DB --remote --file=./init_table.sql --yes
+
+# 执行用户偏好持久化表迁移
+npx wrangler d1 execute DB --remote --file=./migrations/003_add_user_preferences.sql --yes
 ```
+
+::: tip 数据库表说明
+NaviHive 使用 6 张表：
+- `groups` - 分组表
+- `sites` - 站点表
+- `configs` - 配置表
+- `user_favorites` - 用户收藏表
+- `user_preferences` - 用户偏好设置表
+- `user_recent_visits` - 用户最近访问表
+:::
 
 ### 步骤 6：部署
 
