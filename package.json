@@ -3,9 +3,12 @@
     "private": true,
     "version": "1.1.0",
     "type": "module",
+    "packageManager": "pnpm@10.11.1",
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
+        "test": "vitest --run",
+        "test:watch": "vitest",
         "lint": "eslint .",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
         "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
@@ -48,6 +51,7 @@
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-react-hooks": "^5.1.0",
         "eslint-plugin-react-refresh": "^0.4.19",
+        "fast-check": "^4.6.0",
         "fs": "0.0.1-security",
         "globals": "^15.15.0",
         "path": "^0.12.7",
@@ -57,7 +61,9 @@
         "typescript-eslint": "^8.24.1",
         "vite": "^6.2.0",
         "vitepress": "^1.6.4",
+        "vitest": "^4.1.2",
         "vue": "^3.5.24",
-        "wrangler": "^4.7.2"
+        "wrangler": "^4.7.2",
+        "yaml": "^2.8.3"
     }
 }
