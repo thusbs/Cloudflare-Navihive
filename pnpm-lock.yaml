@@ -102,6 +102,9 @@ importers:
       globals:
         specifier: ^15.15.0
         version: 15.15.0
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
       path:
         specifier: ^0.12.7
         version: 0.12.7
