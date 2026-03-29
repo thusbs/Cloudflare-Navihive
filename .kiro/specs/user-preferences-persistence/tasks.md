@@ -133,15 +133,15 @@
   - 使用 Wrangler 本地测试 API 端点
   - 确认所有测试通过，如有问题请询问用户
 
-- [ ] 6. 前端实现 - TypeScript 类型和工具
-  - [ ] 6.1 定义前端 TypeScript 类型
+- [x] 6. 前端实现 - TypeScript 类型和工具
+  - [x] 6.1 定义前端 TypeScript 类型
     - 创建 `src/types/preferences.ts`
     - 定义 Favorite、UserPreferences、CustomThemeColors 接口
     - 定义 Visit、MigrationResult、PreferencesCache 接口
     - 定义 MigrationStatus 接口
     - _需求: 3.1, 7.1_
   
-  - [ ] 6.2 实现设备标识符管理工具
+  - [x] 6.2 实现设备标识符管理工具
     - 创建 `src/utils/deviceIdentifier.ts`
     - 实现 `generateDeviceIdentifier()` 函数
     - 实现 `getDeviceIdentifier()` 函数（从 localStorage 读取）
@@ -150,7 +150,7 @@
     - _需求: 2.1_
 
 - [ ] 7. 前端实现 - API 客户端扩展
-  - [ ] 7.1 扩展 NavigationClient 类
+  - [x] 7.1 扩展 NavigationClient 类
     - 修改 `src/API/client.ts`
     - 添加 `getFavorites()` 方法
     - 添加 `addFavorite(siteId: number)` 方法
@@ -169,7 +169,7 @@
     - _需求: 4.1-4.8_
 
 - [ ] 8. 前端实现 - PreferencesContext
-  - [ ] 8.1 创建 PreferencesContext
+  - [x] 8.1 创建 PreferencesContext
     - 创建 `src/contexts/PreferencesContext.tsx`
     - 定义 PreferencesContextValue 接口
     - 实现 PreferencesProvider 组件

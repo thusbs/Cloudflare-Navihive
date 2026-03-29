@@ -1,4 +1,6 @@
 import { Group, Site, LoginResponse, ExportData, ImportResult, GroupWithSites } from './http';
+import { UserPreferences, MigrationResult } from '../types/preferences';
+import { getDeviceIdentifier } from '../utils/deviceIdentifier';
 
 export class NavigationClient {
   private baseUrl: string;
@@ -67,6 +69,12 @@ export class NavigationClient {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+
+    // Add X-Device-ID header for guest users
+    if (!this.isAuthenticated) {
+      const deviceId = getDeviceIdentifier();
+      headers['X-Device-ID'] = deviceId;
+    }
 
     // Cookie 会自动包含在请求中，无需手动设置
 
@@ -252,5 +260,86 @@ export class NavigationClient {
       body: JSON.stringify(data),
     });
     return response;
+  }
+
+  // 偏好管理 API
+
+  /**
+   * Get user's favorite sites
+   * 获取用户收藏的站点列表
+   */
+  async getFavorites(): Promise<number[]> {
+    const response = await this.request('preferences/favorites');
+    return response.favorites.map((f: { site_id: number }) => f.site_id);
+  }
+
+  /**
+   * Add a site to favorites
+   * 添加站点到收藏
+   */
+  async addFavorite(siteId: number): Promise<void> {
+    await this.request(`preferences/favorites/${siteId}`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Remove a site from favorites
+   * 从收藏中移除站点
+   */
+  async removeFavorite(siteId: number): Promise<void> {
+    await this.request(`preferences/favorites/${siteId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get user preferences (view mode, theme, etc.)
+   * 获取用户偏好设置
+   */
+  async getPreferences(): Promise<UserPreferences> {
+    const response = await this.request('preferences/settings');
+    return response.preferences;
+  }
+
+  /**
+   * Update user preferences
+   * 更新用户偏好设置
+   */
+  async updatePreferences(prefs: Partial<UserPreferences>): Promise<void> {
+    await this.request('preferences/settings', {
+      method: 'PUT',
+      body: JSON.stringify(prefs),
+    });
+  }
+
+  /**
+   * Record a site visit
+   * 记录站点访问
+   */
+  async recordVisit(siteId: number): Promise<void> {
+    await this.request(`preferences/visits/${siteId}`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Get recent visits
+   * 获取最近访问记录
+   */
+  async getRecentVisits(limit: number = 20): Promise<number[]> {
+    const response = await this.request(`preferences/visits?limit=${limit}`);
+    return response.visits.map((v: { site_id: number }) => v.site_id);
+  }
+
+  /**
+   * Migrate guest preferences to authenticated user
+   * 将游客偏好数据迁移到已认证用户
+   */
+  async migrateGuestPreferences(deviceId: string): Promise<MigrationResult> {
+    return this.request('preferences/migrate', {
+      method: 'POST',
+      body: JSON.stringify({ device_identifier: deviceId }),
+    });
   }
 }
