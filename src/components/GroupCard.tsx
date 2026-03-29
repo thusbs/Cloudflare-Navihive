@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Site, Group } from '../API/http';
 import SiteCard from './SiteCard';
 import ListView from './ListView';
+import SiteSettingsModal from './SiteSettingsModal';
 import { GroupWithSites } from '../types';
 import EditGroupDialog from './EditGroupDialog';
 import {
@@ -84,6 +85,8 @@ const GroupCard: React.FC<GroupCardProps> = ({
   const [sites, setSites] = useState<Site[]>(group.sites);
   // 添加编辑弹窗的状态
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  // 添加站点设置对话框状态
+  const [editingSite, setEditingSite] = useState<Site | null>(null);
   // 添加提示消息状态
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -187,8 +190,7 @@ const GroupCard: React.FC<GroupCardProps> = ({
           sites={sitesToRender}
           onSiteClick={onVisitSite}
           onSettingsClick={(site) => {
-            // 这里需要打开设置对话框，暂时使用 console.log
-            console.log('Edit site:', site);
+            setEditingSite(site);
           }}
           viewMode={viewMode}
           favoriteSiteIds={favoriteSiteIds}
@@ -492,6 +494,23 @@ const GroupCard: React.FC<GroupCardProps> = ({
           onClose={() => setEditDialogOpen(false)}
           onSave={handleUpdateGroup}
           onDelete={handleDeleteGroup}
+        />
+      )}
+
+      {/* 站点设置对话框 */}
+      {editingSite && (
+        <SiteSettingsModal
+          site={editingSite}
+          onUpdate={(updatedSite) => {
+            onUpdate(updatedSite);
+            setEditingSite(null);
+          }}
+          onDelete={(siteId) => {
+            onDelete(siteId);
+            setEditingSite(null);
+          }}
+          onClose={() => setEditingSite(null)}
+          iconApi={configs?.['site.iconApi']}
         />
       )}
 
