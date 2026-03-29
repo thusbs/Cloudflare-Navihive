@@ -173,4 +173,144 @@ export class PreferencesAPI {
       .bind(...values)
       .run();
   }
+
+  /**
+   * Record a site visit
+   * @param userId - User identifier
+   * @param siteId - Site ID to record
+   * @description Uses INSERT ... ON CONFLICT DO UPDATE to update visit time if record exists
+   * Automatically cleans up old records, keeping only the most recent 20 visits
+   */
+  async recordVisit(userId: string, siteId: number): Promise<void> {
+    // Insert or update visit record with current timestamp
+    await this.db
+      .prepare(
+        `
+        INSERT INTO user_recent_visits (user_id, site_id, visited_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(user_id, site_id) DO UPDATE SET visited_at = CURRENT_TIMESTAMP
+      `
+      )
+      .bind(userId, siteId)
+      .run();
+
+    // Clean up old records, keeping only the most recent 20
+    await this.db
+      .prepare(
+        `
+        DELETE FROM user_recent_visits
+        WHERE user_id = ?
+        AND id NOT IN (
+          SELECT id FROM user_recent_visits
+          WHERE user_id = ?
+          ORDER BY visited_at DESC
+          LIMIT 20
+        )
+      `
+      )
+      .bind(userId, userId)
+      .run();
+  }
+
+  /**
+   * Get recent visits for a user
+   * @param userId - User identifier
+   * @param limit - Maximum number of records to return (default 20, max 50)
+   * @returns Array of visit records ordered by visited_at DESC
+   */
+  async getRecentVisits(userId: string, limit: number = 20): Promise<Visit[]> {
+    // Ensure limit is within bounds
+    const safeLimit = Math.min(Math.max(1, limit), 50);
+
+    const result = await this.db
+      .prepare(
+        `
+        SELECT * FROM user_recent_visits
+        WHERE user_id = ?
+        ORDER BY visited_at DESC
+        LIMIT ?
+      `
+      )
+      .bind(userId, safeLimit)
+      .all();
+
+    return result.results as Visit[];
+  }
+
+
+    /**
+     * Migrate guest user data to authenticated user account
+     * @param guestUserId - Guest user's device identifier
+     * @param authenticatedUserId - Authenticated user's username
+     * @returns Migration statistics (number of favorites and visits migrated)
+     * @description Uses D1 batch API for transactional operations:
+     * - Migrates favorites with ON CONFLICT DO NOTHING (keeps existing)
+     * - Migrates visits with ON CONFLICT DO UPDATE (keeps latest timestamp)
+     * - Cleans up guest data after successful migration
+     * **Validates: Requirements 2.3, 2.4, 2.5, 4.6**
+     */
+    async migrateGuestData(
+      guestUserId: string,
+      authenticatedUserId: string
+    ): Promise<MigrationResult> {
+      const migrated = {
+        favorites: 0,
+        visits: 0,
+      };
+
+      try {
+        // D1 doesn't support transactions directly, use batch API for atomic operations
+        const statements: D1PreparedStatement[] = [];
+
+        // 1. Migrate favorites (handle duplicates with ON CONFLICT DO NOTHING)
+        statements.push(
+          this.db
+            .prepare(
+              `
+            INSERT INTO user_favorites (user_id, site_id, created_at)
+            SELECT ?, site_id, created_at
+            FROM user_favorites
+            WHERE user_id = ?
+            ON CONFLICT(user_id, site_id) DO NOTHING
+          `
+            )
+            .bind(authenticatedUserId, guestUserId)
+        );
+
+        // 2. Migrate visit records (merge with latest timestamp)
+        statements.push(
+          this.db
+            .prepare(
+              `
+            INSERT INTO user_recent_visits (user_id, site_id, visited_at)
+            SELECT ?, site_id, visited_at
+            FROM user_recent_visits
+            WHERE user_id = ?
+            ON CONFLICT(user_id, site_id) DO UPDATE SET
+              visited_at = MAX(visited_at, excluded.visited_at)
+          `
+            )
+            .bind(authenticatedUserId, guestUserId)
+        );
+
+        // 3. Clean up guest favorites data
+        statements.push(this.db.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(guestUserId));
+
+        // 4. Clean up guest visits data
+        statements.push(this.db.prepare('DELETE FROM user_recent_visits WHERE user_id = ?').bind(guestUserId));
+
+        // Execute batch operations atomically
+        const results = await this.db.batch(statements);
+
+        // Collect migration statistics
+        migrated.favorites = results[0].meta?.changes || 0;
+        migrated.visits = results[1].meta?.changes || 0;
+
+        return migrated;
+      } catch (error) {
+        console.error('Migration failed:', error);
+        throw new Error('偏好数据迁移失败');
+      }
+    }
+
 }

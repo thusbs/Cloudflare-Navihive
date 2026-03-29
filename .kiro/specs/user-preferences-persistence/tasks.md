@@ -70,7 +70,7 @@
     - **属性 6: 用户偏好设置往返一致性**
     - **验证需求: 3.2, 3.3, 3.4**
   
-  - [-] 3.6 实现访问记录方法
+  - [x] 3.6 实现访问记录方法
     - 实现 `recordVisit(userId: string, siteId: number)` 方法
     - 使用 INSERT ... ON CONFLICT DO UPDATE 更新访问时间
     - 实现自动清理逻辑（保留最近 20 条）
